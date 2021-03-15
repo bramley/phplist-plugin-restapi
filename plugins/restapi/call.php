@@ -4,6 +4,8 @@ namespace phpListRestapi;
 
 defined('PHPLISTINIT') || die;
 
+// Remove the slashes added by phplist in magic_quotes.php
+$_REQUEST = stripSlashesArray($_REQUEST);
 
 //Getting phpList globals for this plugin
 $plugin = $GLOBALS['plugins'][$_GET['pi']];
