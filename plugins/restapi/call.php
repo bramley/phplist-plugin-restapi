@@ -4,6 +4,8 @@ namespace phpListRestapi;
 
 defined('PHPLISTINIT') || die;
 
+// Remove the slashes added by phplist in magic_quotes.php
+$_REQUEST = stripSlashesArray($_REQUEST);
 
 //Getting phpList globals for this plugin
 $plugin = $GLOBALS['plugins'][$_GET['pi']];
@@ -54,7 +56,7 @@ $ipAddress = getConfig('restapi_ipaddress');
 if (!empty($ipAddress) && ($GLOBALS['remoteAddr'] != $ipAddress)) {
     $response->outputErrorMessage('Incorrect ip address for request. Check your settings.');
     die(0);
-} 
+}
 $requireSecret = getConfig('restapi_usesecret');
 if ($requireSecret) {
   $secret = getConfig('remote_processing_secret');
@@ -62,7 +64,7 @@ if ($requireSecret) {
     $response->outputErrorMessage('Incorrect processing secret. Check your settings.');
     die(0);
   }
-} 
+}
 $enforceSSL = getConfig('restapi_enforcessl');
 if ($enforceSSL && empty($_SERVER['HTTPS'])) {
     $response->outputErrorMessage('Invalid API request. Request is not using SSL, which is enforced by the plugin settings.');
