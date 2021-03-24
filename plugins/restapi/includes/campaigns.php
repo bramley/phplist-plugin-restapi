@@ -124,7 +124,7 @@ class Campaigns
             $stmt->bindParam('template', $_REQUEST['template'], PDO::PARAM_INT);
             $stmt->bindParam('embargo', $_REQUEST['embargo'], PDO::PARAM_STR);
             $stmt->bindParam('rsstemplate', $_REQUEST['rsstemplate'], PDO::PARAM_STR);
-            $stmt->bindParam('owner', $_REQUEST['owner'], PDO::PARAM_INT);
+            $stmt->bindParam('owner',  $_SESSION['logindetails']['id'], PDO::PARAM_INT);
             $stmt->bindParam('htmlformatted', $_REQUEST['htmlformatted'], PDO::PARAM_STR);
             $stmt->execute();
             $id = $db->lastInsertId();
