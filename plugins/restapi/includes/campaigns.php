@@ -68,7 +68,7 @@ class Campaigns
 
         $subsql = "SELECT COUNT(userid) FROM " . $GLOBALS['tables']['usermessage'] . " WHERE viewed IS NOT NULL AND status = 'sent' and messageid = m.id";
         $sublists = "SELECT GROUP_CONCAT(`listid` SEPARATOR ',') from ".$GLOBALS['tables']['listmessage']." WHERE messageid = m.id";
-        
+
         $sql  = "SELECT COALESCE(SUM(clicked), 0) AS clicked, (" . $subsql . ") AS uviews, ";
         $sql .= "(".$sublists.") as lists ,";
         $sql .= "m.* ";
@@ -188,4 +188,26 @@ class Campaigns
         }
     }
 
+    /**
+     * Delete a campaign.
+     *
+     * <p><strong>Parameters:</strong><br/>
+     * [*id] {integer} the ID of the campaign.
+     * <p><strong>Returns:</strong><br/>
+     * Campaign id for success otherwise a failure message.
+     * </p>
+     */
+    public static function campaignDelete($id = 0)
+    {
+        if ($id == 0) {
+            $id = $_REQUEST['id'];
+        }
+
+        $deleted = deleteMessage($id);
+        if ($deleted > 0) {
+            Response::outputDeleted('Campaign', $id);
+        } else {
+            Response::outputErrorMessage("Unable to delete campaign $id");
+        }
+    }
 }
