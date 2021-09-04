@@ -129,10 +129,29 @@ class Campaigns
      */
     public static function campaignAdd()
     {
-        $sql = 'INSERT INTO '.$GLOBALS['tables']['message'].' (subject, fromfield, replyto, message, textmessage, footer, entered, status, sendformat, template, embargo, rsstemplate, owner, htmlformatted, uuid ) VALUES ( :subject, :fromfield, :replyto, :message, :textmessage, :footer, now(), :status, :sendformat, :template, :embargo, :rsstemplate, :owner, :htmlformatted, :uuid );';
+        $sql1 = <<<END
+    SELECT id
+    FROM {$GLOBALS['tables']['message']}
+    WHERE subject = :subject AND template = :template AND status IN ('submitted', 'draft')
+    LIMIT 1
+END;
+        $sql2 = <<<END
+        INSERT INTO {$GLOBALS['tables']['message']}
+        (subject, fromfield, replyto, message, textmessage, footer, entered, status, sendformat, template, embargo, rsstemplate, owner, htmlformatted, uuid )
+        VALUES (:subject, :fromfield, :replyto, :message, :textmessage, :footer, now(), :status, :sendformat, :template, :embargo, :rsstemplate, :owner, :htmlformatted, :uuid);
+END;
         try {
             $db = PDO::getConnection();
-            $stmt = $db->prepare($sql);
+            $stmt = $db->prepare($sql1);
+            $stmt->bindParam('subject', $_REQUEST['subject'], PDO::PARAM_STR);
+            $stmt->bindParam('template', $_REQUEST['template'], PDO::PARAM_INT);
+            $stmt->execute();
+            $result = $stmt->fetch(PDO::FETCH_OBJ);
+
+            if ($result !== false) {
+                Response::outputErrorMessage('duplicate');
+            }
+            $stmt = $db->prepare($sql2);
             $stmt->bindParam('subject', $_REQUEST['subject'], PDO::PARAM_STR);
             $stmt->bindParam('fromfield', $_REQUEST['fromfield'], PDO::PARAM_STR);
             $stmt->bindParam('replyto', $_REQUEST['replyto'], PDO::PARAM_STR);
