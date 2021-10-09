@@ -109,7 +109,7 @@ class Campaigns
      */
     public static function campaignAdd()
     {
-        $sql = 'INSERT INTO '.$GLOBALS['tables']['message'].' (subject, fromfield, replyto, message, textmessage, footer, entered, status, sendformat, template, embargo, rsstemplate, owner, htmlformatted ) VALUES ( :subject, :fromfield, :replyto, :message, :textmessage, :footer, now(), :status, :sendformat, :template, :embargo, :rsstemplate, :owner, :htmlformatted );';
+        $sql = 'INSERT INTO '.$GLOBALS['tables']['message'].' (subject, fromfield, replyto, message, textmessage, footer, entered, status, sendformat, template, embargo, rsstemplate, owner, htmlformatted, uuid ) VALUES ( :subject, :fromfield, :replyto, :message, :textmessage, :footer, now(), :status, :sendformat, :template, :embargo, :rsstemplate, :owner, :htmlformatted, :uuid );';
         try {
             $db = PDO::getConnection();
             $stmt = $db->prepare($sql);
@@ -126,6 +126,8 @@ class Campaigns
             $stmt->bindParam('rsstemplate', $_REQUEST['rsstemplate'], PDO::PARAM_STR);
             $stmt->bindParam('owner',  $_SESSION['logindetails']['id'], PDO::PARAM_INT);
             $stmt->bindParam('htmlformatted', $_REQUEST['htmlformatted'], PDO::PARAM_STR);
+            $uuid = (string) \UUID::generate(4);
+            $stmt->bindParam('uuid', $uuid, PDO::PARAM_STR);
             $stmt->execute();
             $id = $db->lastInsertId();
             $db = null;
