@@ -131,10 +131,31 @@ class Campaigns
             $stmt->execute();
             $id = $db->lastInsertId();
             $db = null;
-            self::campaignGet($id);
         } catch (\Exception $e) {
             Response::outputError($e);
         }
+
+        if (isset($_REQUEST['campaigntitle'])) {
+            $sql = <<<"END"
+INSERT INTO {$GLOBALS['tables']['messagedata']}
+(name, id, data)
+VALUES (:name, :id, :data)
+END;
+            try {
+                $db = PDO::getConnection();
+                $name = 'campaigntitle';
+                $stmt = $db->prepare($sql);
+                $stmt->bindParam('name', $name, PDO::PARAM_STR);
+                $stmt->bindParam('id', $id, PDO::PARAM_STR);
+                $stmt->bindParam('data', $_REQUEST['campaigntitle'], PDO::PARAM_STR);
+                $stmt->execute();
+                $db = null;
+            } catch (\Exception $e) {
+                Response::outputError($e);
+            }
+        }
+
+        return self::campaignGet($id);
     }
 
     /**
