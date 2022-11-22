@@ -155,7 +155,14 @@ class Campaigns
             Response::outputError($e);
         }
 
-        if (isset($_REQUEST['campaigntitle'])) {
+        // Add any extra fields to the messagedata table
+        $fieldsToIgnore = [
+            'subject', 'fromfield', 'replyto', 'message', 'textmessage', 'footer', 'status', 'sendformat', 'template',
+            'embargo', 'rsstemplate', 'owner', 'htmlformatted', 'pi', 'cmd', 'page', 'secret',
+        ];
+        $extraFields = array_diff(array_keys($_REQUEST), $fieldsToIgnore);
+
+        if (count($extraFields) > 0) {
             $sql = <<<"END"
 INSERT INTO {$GLOBALS['tables']['messagedata']}
 (name, id, data)
@@ -163,12 +170,14 @@ VALUES (:name, :id, :data)
 END;
             try {
                 $db = PDO::getConnection();
-                $name = 'campaigntitle';
                 $stmt = $db->prepare($sql);
-                $stmt->bindParam('name', $name, PDO::PARAM_STR);
-                $stmt->bindParam('id', $id, PDO::PARAM_STR);
-                $stmt->bindParam('data', $_REQUEST['campaigntitle'], PDO::PARAM_STR);
-                $stmt->execute();
+                $stmt->bindParam('id', $id, PDO::PARAM_INT);
+
+                foreach ($extraFields as $field) {
+                    $stmt->bindParam('name', $field, PDO::PARAM_STR);
+                    $stmt->bindParam('data', $_REQUEST[$field], PDO::PARAM_STR);
+                    $stmt->execute();
+                }
                 $db = null;
             } catch (\Exception $e) {
                 Response::outputError($e);
