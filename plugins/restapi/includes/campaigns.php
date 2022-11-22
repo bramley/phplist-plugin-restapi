@@ -16,11 +16,31 @@ class Campaigns
             $id = $_REQUEST['id'];
         }
 
-        $params = array(
-            'id' => array($id,PDO::PARAM_INT),
-        );
+       $response = new Response();
+       try {
+            $db = PDO::getConnection();
+            $sql = 'SELECT * FROM '.$GLOBALS['tables']['message'].' WHERE id=:id;';
+            $stmt = $db->prepare($sql);
+            $stmt->bindParam('id', $id, PDO::PARAM_INT);
+            $stmt->execute();
+            $result = $stmt->fetchAll(PDO::FETCH_OBJ);
+            $result = $result[0];
 
-        Common::select('Campaign', 'SELECT * FROM '.$GLOBALS['tables']['message'].' WHERE id=:id;',$params, true);
+            // Add fields from the messagedata table
+            $sql = 'SELECT name, data FROM '.$GLOBALS['tables']['messagedata'].' WHERE id=:id;';
+            $stmt = $db->prepare($sql);
+            $stmt->bindParam('id', $id, PDO::PARAM_INT);
+            $stmt->execute();
+
+            foreach ($stmt->fetchAll(PDO::FETCH_OBJ) as $obj) {
+                $name = $obj->name;
+                $result->$name = $obj->data;
+            }
+            $response->setData('Campaign', $result);
+            $response->output();
+        } catch (\Exception $e) {
+            Response::outputError($e);
+        }
     }
 
     public static function campaignsCount()
