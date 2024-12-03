@@ -274,7 +274,7 @@ END;
             $id = $_REQUEST['id'];
         }
 
-        $deleted = deleteMessage($id);
+        $deleted = (int) deleteMessage($id);
         if ($deleted > 0) {
             Response::outputDeleted('Campaign', $id);
         } else {
